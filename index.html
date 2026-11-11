@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10162d"><meta name="description" content="Simulador independiente de la Caza de Tesoros de Fortnite">
+<link rel="manifest" href="manifest.webmanifest"><title>Fortnite Treasure Simulator 2.0</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1021;--p:#151f3a;--p2:#1d2b4d;--line:#34486e;--txt:#f5f7ff;--muted:#aab8d6;--gold:#ffd66b;--cyan:#77d7ff;--green:#83e4b6;--pink:#ff91b4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#344b7c 0,#111a35 40%,#080d1b 85%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--txt);min-height:100vh}
+header{text-align:center;padding:23px 14px 17px;background:#080e20bb;border-bottom:1px solid var(--line)}h1{margin:0;color:var(--gold);font-size:clamp(24px,5vw,37px);letter-spacing:1.3px}header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+main{max-width:1000px;margin:auto;padding:14px;display:grid;gap:13px}.panel{background:linear-gradient(145deg,#1a2748ee,#111a31f5);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 12px 32px #0004}
+h2{font-size:18px;margin:0 0 12px}.sub{color:var(--muted);font-size:12px;line-height:1.5}
+label{display:block;color:var(--muted);font-size:12px;margin:0 0 5px}input,select,button{font:inherit;width:100%;padding:10px 11px;border-radius:10px;border:1px solid var(--line);background:#0c1730;color:var(--txt)}button{cursor:pointer;font-weight:750;background:linear-gradient(110deg,#ffdb70,#ffa34b);color:#2b210a;border:0}button.secondary{background:#25385e;color:var(--txt);border:1px solid #4a608a}button:disabled{opacity:.45;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.tabs button{width:auto;padding:8px 12px;font-size:12px}.tabs button.active{background:var(--gold);color:#211900}
+.hidden{display:none!important}.hero{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center}.chest{font-size:77px;text-align:center;filter:drop-shadow(0 0 15px #ffc94e99);transform-origin:bottom;cursor:pointer}.chest.opening{animation:openChest .75s ease-in-out}.chest.opening:after{content:"✨"}@keyframes openChest{0%{transform:scale(1) rotate(0)}25%{transform:scale(1.12) rotate(-8deg)}55%{transform:scale(1.2) rotate(8deg);filter:drop-shadow(0 0 28px #ffe58b)}100%{transform:scale(1) rotate(0)}}
+.result{border:1px dashed #63769d;border-radius:12px;padding:12px;min-height:66px;text-align:center;display:grid;place-content:center;gap:4px;color:var(--muted)}.result strong{color:var(--gold);font-size:18px}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#0b1630;border:1px solid #26395e;border-radius:12px;padding:10px;text-align:center}.stat b{display:block;color:var(--gold);font-size:20px}.stat span{font-size:10px;color:var(--muted)}
+.reward{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #314365}.reward:last-child{border:0}.rarity{width:9px;height:38px;border-radius:8px;background:var(--cyan)}.reward .name{flex:1;font-size:13px}.reward .odds{font-size:11px;color:var(--muted);text-align:right}.owned{color:var(--green);font-size:11px}
+.history{max-height:270px;overflow:auto}.entry{display:flex;justify-content:space-between;gap:8px;padding:8px 1px;border-bottom:1px solid #314365;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:9px 5px;border-bottom:1px solid #314365;text-align:left}th{color:var(--muted)}
+.note{background:#332c1c;border-left:3px solid var(--gold);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.5}
+.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#27385b;color:#d9e6ff;font-size:10px}
+.weekedit{display:grid;grid-template-columns:1fr 1.3fr;gap:7px;align-items:center;margin:7px 0}.weekedit input{padding:8px}
+footer{text-align:center;padding:8px 18px 28px;color:var(--muted);font-size:11px}
+@media(max-width:600px){main{padding:10px}.panel{padding:12px}.hero{grid-template-columns:75px 1fr}.chest{font-size:58px}.grid2{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.statgrid{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body>
+<header><h1>FORTNITE TREASURE</h1><p>Simulador de Caza de Tesoros · Versión 2.0</p></header>
+<main>
+<section class="panel">
+ <h2>👤 Jugadores y perfiles</h2>
+ <div class="grid2">
+  <div><label for="playerSelect">Jugador activo</label><select id="playerSelect"></select></div>
+  <div><label for="newPlayer">Crear jugador nuevo</label><input id="newPlayer" maxlength="22" placeholder="Ej. Jugador Pro"></div>
+ </div>
+ <div class="grid3" style="margin-top:9px">
+  <button id="createPlayer">+ Crear perfil</button><button id="renamePlayer" class="secondary">Cambiar nombre</button><button id="deletePlayer" class="secondary">Eliminar perfil</button>
+ </div>
+ <div class="grid2" style="margin-top:10px">
+  <div><label for="profileType">Tipo de jugador</label><select id="profileType"><option>Principiante</option><option>Experimentado</option><option selected>Veterano</option><option>Profesional</option></select></div>
+  <div><label for="level">Nivel de cuenta</label><input id="level" type="number" min="1" max="9999" value="350"></div>
+ </div>
+ <p class="sub">Cada perfil conserva su propio historial, cofres y premios. El nivel no cambia las probabilidades publicadas por Epic.</p>
+</section>
+<section class="panel">
+ <h2>🧭 Simulador de cofres</h2>
+ <div class="grid2">
+  <div><label for="week">Semana / catálogo</label><select id="week"><option value="week1">Semana 1 · Catálogo inicial</option><option value="week2">Semana 2 · Catálogo semanal</option><option value="custom">Catálogo personalizado</option></select></div>
+  <div><label for="hourMode">Probabilidades</label><select id="hourMode"><option value="normal">Partida normal</option><option value="standard">Treasure Hours · 1,5× / 7,5× / 10×</option><option value="special">Sesión especial · 2× / 10× / 10×</option><option value="custom">Multiplicadores manuales</option></select></div>
+ </div>
+ <div id="customBoosts" class="grid3 hidden" style="margin-top:9px">
+  <div><label>Traje dorado ×</label><input id="boostOutfit" type="number" min="1" step=".1" value="7.5"></div>
+  <div><label>Pirate Shop ×</label><input id="boostToken" type="number" min="1" step=".1" value="1.5"></div>
+  <div><label>Vehículo ×</label><input id="boostVehicle" type="number" min="1" step=".1" value="10"></div>
+ </div>
+ <div class="hero" style="margin:13px 0">
+  <div id="chest" class="chest" role="img" aria-label="Cofre del tesoro">🧰</div>
+  <div><span class="pill">APERTURA SIMULADA</span><p class="sub">Abre cofres y descubre si consigues los objetos semanales. Los lotes grandes se calculan sin animación individual.</p></div>
+ </div>
+ <div id="result" class="result" aria-live="polite">¡Elige un lote y abre tu primer cofre!</div>
+ <div class="grid3" style="margin-top:10px"><button id="open1">Abrir ×1</button><button id="open10" class="secondary">Abrir ×10</button><button id="open100" class="secondary">Abrir ×100</button></div>
+ <div class="grid2" style="margin-top:8px"><button id="open1000" class="secondary">Abrir ×1.000</button><button id="open10000" class="secondary">Abrir ×10.000</button></div>
+</section>
+<section class="panel">
+ <h2>🎁 Catálogo y probabilidades</h2>
+ <p class="sub">Probabilidad por cofre según la tabla publicada para el evento. Los objetos semanales son editables; el catálogo no se actualiza solo.</p>
+ <div id="catalog"></div>
+ <p class="sub" id="probSummary"></p>
+</section>
+<section class="panel">
+ <h2>📈 Estadísticas del jugador</h2>
+ <div class="statgrid">
+  <div class="stat"><b id="opened">0</b><span>Cofres abiertos</span></div><div class="stat"><b id="rewards">0</b><span>Premios obtenidos</span></div><div class="stat"><b id="gizmos">0</b><span>Gizmos</span></div><div class="stat"><b id="unique">0/6</b><span>Premios únicos</span></div>
+ </div>
+ <div id="statsTable" style="overflow-x:auto;margin-top:12px"></div>
+ <p class="sub" id="chanceInfo"></p>
+</section>
+<section class="panel">
+ <h2>🏅 Clasificación de jugadores</h2>
+ <p class="sub">Ordenada por premios únicos; después por cantidad total de premios. No mide habilidad real ni concede ventajas.</p>
+ <div id="leaderboard"></div>
+</section>
+<section class="panel">
+ <h2>🧾 Historial del jugador</h2>
+ <div class="grid2"><button id="export" class="secondary">Exportar historial JSON</button><button id="clearHistory" class="secondary">Borrar historial</button></div>
+ <div id="history" class="history" style="margin-top:10px"></div>
+</section>
+<section class="panel">
+ <h2>🛠️ Editor de recompensas semanales</h2>
+ <p class="sub">Puedes cambiar los nombres cuando Epic publique una nueva semana. Las probabilidades no se alteran al cambiar el nombre.</p>
+ <div id="editor"></div>
+ <div class="grid2" style="margin-top:10px"><button id="saveCatalog">Guardar catálogo</button><button id="restoreCatalog" class="secondary">Restaurar nombres iniciales</button></div>
+</section>
+<div class="note"><b>Importante:</b> aplicación de aficionados, no oficial ni afiliada a Epic Games. No se conecta a Epic, no requiere iniciar sesión y no entrega objetos, V-Bucks ni Pirate Shop Access reales. Las probabilidades son las publicadas para el evento Treasure Hunters; no se debe asumir que seguirán vigentes en futuras temporadas. El nivel de cuenta no modifica el azar.</div>
+</main>
+<footer>FORTNITE TREASURE SIMULATOR 2.0 · Guardado local en este dispositivo</footer>
+<script>
+const $=id=>document.getElementById(id), STORAGE='ftreasure-v2';
+const baseRewards=[
+ {id:'outfit',label:'Traje dorado semanal',den:1562500,rarity:'Mítico',color:'#ffcf55',unique:true,emoji:'👑'},
+ {id:'token',label:'Pirate Shop Access',den:137500,rarity:'Mítico',color:'#ffcf55',unique:true,emoji:'🏴‍☠️'},
+ {id:'vehicle',label:'Vehículo y diseño semanal',den:7813,rarity:'Legendario',color:'#ff9d4c',unique:true,emoji:'🚙'},
+ {id:'backbling',label:'Pico o accesorio mochilero',den:568,rarity:'Épico',color:'#c18aff',unique:true,emoji:'⛏️'},
+ {id:'jam',label:'Jam Track semanal',den:391,rarity:'Épico',color:'#c18aff',unique:true,emoji:'🎵'},
+ {id:'loading',label:'Pantalla de carga semanal',den:272,rarity:'Raro',color:'#73c8ff',unique:true,emoji:'🖼️'},
+ {id:'gizmo',label:'Cualquier Gizmo',den:127,rarity:'Poco común',color:'#83e4b6',unique:false,emoji:'🧩'}
+];
+const defaultCatalog={
+ week1:{outfit:'Solid Gold A$AP Rocky',token:'Pirate Shop Access',vehicle:'Mercedes-AMG G 63 · Golden Llama Crew',backbling:'Solid Gold Gauntlets',jam:'No Trespassing',loading:'Plunder in Paradise'},
+ week2:{outfit:'Traje dorado semanal (editar)',token:'Pirate Shop Access',vehicle:'Vehículo y diseño semanal (editar)',backbling:'Pico o accesorio semanal (editar)',jam:'Jam Track semanal (editar)',loading:'Pantalla de carga semanal (editar)'}
+};
+let db;
+function freshPlayer(name='Jugador 1'){return {id:'p'+Date.now()+Math.random().toString(16).slice(2),name,type:'Veterano',level:350,opened:0,counts:{},owned:{},history:[]}}
+function loadDB(){try{let x=JSON.parse(localStorage.getItem(STORAGE));if(x&&x.players?.length)return x}catch(e){}return {players:[freshPlayer()],active:0,catalog:defaultCatalog}}
+db=loadDB();db.catalog={...defaultCatalog,...(db.catalog||{})};if(!db.catalog.custom)db.catalog.custom={...defaultCatalog.week1};let player=()=>db.players[db.active];
+function save(){localStorage.setItem(STORAGE,JSON.stringify(db))}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function profileOptions(){ $('playerSelect').innerHTML=db.players.map((p,i)=>`<option value="${i}" ${i===db.active?'selected':''}>${esc(p.name)}</option>`).join('')}
+function syncProfile(){let p=player();$('profileType').value=p.type;$('level').value=p.level;render()}
+function weekItems(){let w=db.catalog[$('week').value]||db.catalog.week1;return baseRewards.map(r=>({...r,label:w[r.id]||r.label}))}
+function boosts(){let mode=$('hourMode').value;if(mode==='normal')return {outfit:1,token:1,vehicle:1};if(mode==='standard')return {outfit:7.5,token:1.5,vehicle:10};if(mode==='special')return {outfit:10,token:2,vehicle:10};return {outfit:Math.max(1,+$('boostOutfit').value||1),token:Math.max(1,+$('boostToken').value||1),vehicle:Math.max(1,+$('boostVehicle').value||1)}}
+function prob(r){let b=boosts();return 1/(r.den*(1/(b[r.id]||1)))}
+function oddsText(p){return '1 entre '+Math.round(1/p).toLocaleString('es-ES')}
+function openBatch(n,animate=true){
+ let p=player(),totals={},drops=0,found=[];
+ for(let i=0;i<n;i++){
+  p.opened++;
+  for(let r of weekItems()){
+   if(r.unique&&p.owned[r.id])continue;
+   if(Math.random()<prob(r)){
+    p.counts[r.id]=(p.counts[r.id]||0)+1;drops++;totals[r.label]=(totals[r.label]||0)+1;found.push(r.label);
+    if(r.unique)p.owned[r.id]=true;
+    p.history.unshift({reward:r.label,kind:r.id,chest:p.opened,time:new Date().toLocaleString('es-ES')});
+   }
+  }
+ }
+ save();render();
+ let entries=Object.entries(totals);
+ $('result').innerHTML=entries.length?`<strong>✨ ${drops} recompensa(s) encontrada(s)</strong>${entries.map(([k,v])=>`<span>${esc(k)} × ${v}</span>`).join('')}<span>En ${n.toLocaleString('es-ES')} cofres</span>`:`<strong>Esta vez no hubo premio</strong><span>${n.toLocaleString('es-ES')} cofres abiertos. Cada cofre es una nueva tirada.</span>`;
+ if(animate){$('chest').classList.remove('opening');void $('chest').offsetWidth;$('chest').classList.add('opening');setTimeout(()=>$('chest').classList.remove('opening'),800)}
+}
+function render(){
+ let p=player(),items=weekItems(),total=Object.values(p.counts).reduce((a,b)=>a+b,0),unique=baseRewards.filter(r=>r.unique&&p.owned[r.id]).length;
+ $('opened').textContent=p.opened.toLocaleString('es-ES');$('rewards').textContent=total.toLocaleString('es-ES');$('gizmos').textContent=(p.counts.gizmo||0).toLocaleString('es-ES');$('unique').textContent=unique+'/6';
+ $('catalog').innerHTML=items.map(r=>`<div class="reward"><span class="rarity" style="background:${r.color}"></span><span style="font-size:21px">${r.emoji}</span><div class="name"><b>${esc(r.label)}</b><div class="sub">${r.rarity} ${r.unique?'· No repetible':'· Repetible'}</div></div><div class="odds">${oddsText(prob(r))}<br>${(prob(r)*100).toFixed(5)}%<br>${r.unique&&p.owned[r.id]?'<span class="owned">CONSEGUIDO</span>':''}</div></div>`).join('');
+ $('statsTable').innerHTML='<table><thead><tr><th>Recompensa</th><th>Veces</th><th>Estado</th><th>Prob. acumulada aprox.</th></tr></thead><tbody>'+items.map(r=>{let c=p.counts[r.id]||0,pc=1-Math.pow(1,0);pc=1-Math.pow(1-prob(r),p.opened);return `<tr><td>${esc(r.label)}</td><td>${c}</td><td>${r.unique&&p.owned[r.id]?'Conseguido': 'Pendiente'}</td><td>${(pc*100).toFixed(3)}%</td></tr>`}).join('')+'</tbody></table>';
+ let tok=items.find(r=>r.id==='token');let chance=tok?1-Math.pow(1-prob(tok),p.opened):0;
+ $('chanceInfo').textContent=`Probabilidad teórica de al menos un Pirate Shop Access en ${p.opened.toLocaleString('es-ES')} cofres: ${(chance*100).toFixed(4)}%. Es una estimación matemática; no garantiza el premio. Si ya se ha obtenido un objeto único, deja de poder salir en este perfil.`;
+ $('history').innerHTML=p.history.length?p.history.slice(0,150).map(h=>`<div class="entry"><span>${esc(h.reward)}</span><span class="sub">Cofre #${h.chest}</span></div>`).join(''):'<p class="sub">Todavía no hay premios. ¡Abre un cofre!</p>';
+ $('leaderboard').innerHTML='<table><thead><tr><th>#</th><th>Jugador</th><th>Nivel</th><th>Únicos</th><th>Premios</th><th>Cofres</th></tr></thead><tbody>'+db.players.map((q,i)=>({q,i,u:baseRewards.filter(r=>r.unique&&q.owned[r.id]).length,t:Object.values(q.counts).reduce((a,b)=>a+b,0)})).sort((a,b)=>b.u-a.u||b.t-a.t).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.q.name)}${x.i===db.active?' ★':''}</td><td>${x.q.level}</td><td>${x.u}/6</td><td>${x.t}</td><td>${x.q.opened}</td></tr>`).join('')+'</tbody></table>';
+ renderEditor();
+}
+function renderEditor(){let c=db.catalog[$('week').value]||db.catalog.week1;$('editor').innerHTML=baseRewards.filter(r=>r.id!=='token'&&r.id!=='gizmo').map(r=>`<div class="weekedit"><label>${r.emoji} ${r.label}</label><input data-reward="${r.id}" value="${esc(c[r.id]||r.label)}"></div>`).join('')+'<p class="sub">Pirate Shop Access y Gizmos son categorías generales y no necesitan nombre semanal.</p>'}
+$('playerSelect').onchange=()=>{db.active=+$('playerSelect').value;save();syncProfile()};
+$('createPlayer').onclick=()=>{let n=$('newPlayer').value.trim();if(!n){alert('Escribe un nombre para el jugador.');return}if(db.players.length>=12){alert('Máximo 12 perfiles.');return}db.players.push(freshPlayer(n));db.active=db.players.length-1;$('newPlayer').value='';save();profileOptions();syncProfile()};
+$('renamePlayer').onclick=()=>{let n=prompt('Nuevo nombre:',player().name);if(n&&n.trim()){player().name=n.trim().slice(0,22);save();profileOptions();render()}};
+$('deletePlayer').onclick=()=>{if(db.players.length===1){alert('Debe quedar al menos un perfil.');return}if(confirm('¿Eliminar el perfil y su historial?')){db.players.splice(db.active,1);db.active=0;save();profileOptions();syncProfile()}};
+$('profileType').onchange=()=>{player().type=$('profileType').value;save();render()};
+$('level').onchange=()=>{player().level=Math.max(1,Math.min(9999,+$('level').value||1));save();render()};
+$('open1').onclick=()=>openBatch(1);$('open10').onclick=()=>openBatch(10);$('open100').onclick=()=>openBatch(100);$('open1000').onclick=()=>openBatch(1000);$('open10000').onclick=()=>openBatch(10000,false);
+$('hourMode').onchange=()=>{$('customBoosts').classList.toggle('hidden',$('hourMode').value!=='custom');render()};
+['week','boostOutfit','boostToken','boostVehicle'].forEach(id=>$(id).onchange=render);
+$('export').onclick=()=>{let blob=new Blob([JSON.stringify(player(),null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=player().name.replace(/[^a-z0-9_-]/gi,'_')+'_historial.json';a.click();URL.revokeObjectURL(a.href)};
+$('clearHistory').onclick=()=>{if(confirm('¿Borrar historial y estadísticas de este jugador?')){let p=player();p.opened=0;p.counts={};p.owned={};p.history=[];save();render();$('result').textContent='Progreso reiniciado.'}};
+$('saveCatalog').onclick=()=>{let w=$('week').value;let c={...(db.catalog[w]||{})};document.querySelectorAll('[data-reward]').forEach(el=>c[el.dataset.reward]=el.value.trim()||el.dataset.reward);db.catalog[w]=c;save();render();alert('Catálogo guardado en este dispositivo.')};
+$('restoreCatalog').onclick=()=>{db.catalog=JSON.parse(JSON.stringify(defaultCatalog));save();render()};
+profileOptions();syncProfile();$('customBoosts').classList.toggle('hidden',$('hourMode').value!=='custom');
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
